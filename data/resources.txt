@@ -1,0 +1,6 @@
+LAB101|ICT Lab|Computer Laboratory|Building 32|40|1
+LAB102|Networking Lab|Computer Laboratory|Building 32|30|1
+LAB103|Hardware Repair Workshop|Repair Workshop|Technical Annex|15|0
+LAB104|Software Support Lab|Computer Laboratory|CS Building|35|1
+EQP201|Projector Kit|Equipment|Equipment Store|1|1
+EQP202|Laptop Cart|Equipment|Equipment Store|20|1

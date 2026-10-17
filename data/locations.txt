@@ -1,0 +1,7 @@
+# format: A|B|distance_in_metres
+Library|CS Building|120
+CS Building|Building 32|80
+Building 32|Technical Annex|60
+Library|Administration|150
+Administration|Equipment Store|90
+Technical Annex|Equipment Store|110

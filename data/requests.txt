@@ -1,0 +1,2 @@
+# format: requestID|user|resourceID|time|priority|status
+REQ001|student01|LAB101|2026-10-19T09:00|3|Pending
