@@ -1,6 +1,9 @@
 // SHARED: integration point. Each owner wires their menu section here.
 #include <iostream>
-#include <limits>
+#include "ResourceManager.h"
+#include "Utils.h"
+
+static const char* RESOURCE_FILE = "data/resources.txt";
 
 static void printMenu() {
     std::cout << "\n================================================\n"
@@ -16,29 +19,39 @@ static void printMenu() {
               << "8. Hash Table Lookup\n"
               << "9. Campus Navigation\n"
               << "10. System Analysis\n"
-              << "0. Exit\n"
-              << "Enter your choice: ";
+              << "0. Exit\n";
 }
 
 int main() {
+    ResourceManager manager;
+
+    // Load data when the program starts.
+    if (!manager.loadFromFile(RESOURCE_FILE)) {
+        std::cout << "Note: " << RESOURCE_FILE << " not found. Starting with no resources.\n";
+    }
+    // TODO (team): after loading, fill Student C's BST and HashTable from manager.getAllAsArray(n).
+
     int choice = -1;
     while (choice != 0) {
         printMenu();
-        if (!(std::cin >> choice)) {              // invalid input handling
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Enter a number.\n";
-            choice = -1;
-            continue;
-        }
+        choice = readInt("Enter your choice: ", 0, 10);   // rejects letters and out-of-range numbers
         switch (choice) {
-            case 0: std::cout << "Goodbye.\n"; break;
-            case 1: case 2: case 3:   std::cout << "[Student A: not implemented yet]\n"; break;
+            case 0: break;
+            case 1: manager.resourceMenu(); break;
+            case 2: manager.searchMenu(); break;
+            case 3: manager.sortMenu(); break;
             case 4: case 5: case 6:   std::cout << "[Student B: not implemented yet]\n"; break;
             case 7: case 8: case 9:   std::cout << "[Student C: not implemented yet]\n"; break;
             case 10: std::cout << "[Shared: not implemented yet]\n"; break;
-            default: std::cout << "Invalid option.\n";
         }
     }
+
+    // Save changes when the program terminates.
+    if (manager.saveToFile(RESOURCE_FILE)) {
+        std::cout << "Resources saved to " << RESOURCE_FILE << ".\n";
+    } else {
+        std::cout << "Warning: could not save to " << RESOURCE_FILE << ".\n";
+    }
+    std::cout << "Goodbye.\n";
     return 0;
 }
