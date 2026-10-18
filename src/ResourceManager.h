@@ -59,6 +59,7 @@ public:
 
     // ----- access for other modules (Student B and C) -----
     int count() const { return list.size(); }
+    int undoCount() const { return undoStack.size(); }      // actions that can still be undone
     Resource* findResource(const std::string& id) const { return hashIndex.find(id); }   // O(1) average
 
     // Read-only access to the indexes (used by Student C's tree and hash menus).

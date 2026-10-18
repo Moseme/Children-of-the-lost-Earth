@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "RequestManager.h"
 #include "CampusManager.h"
+#include "AnalysisManager.h"
 #include "Utils.h"
 
 static const char* RESOURCE_FILE = "data/resources.txt";
@@ -30,6 +31,7 @@ int main() {
     ResourceManager manager;
     RequestManager requests(manager);     // the request system needs access to the resources
     CampusManager campus(manager);        // tree, hash table and graph menus
+    AnalysisManager analysis(manager, requests, campus);   // system analysis menu
 
     // Load data when the program starts.
     if (!manager.loadFromFile(RESOURCE_FILE)) {
@@ -58,7 +60,7 @@ int main() {
             case 7: campus.treeMenu(); break;
             case 8: campus.hashMenu(); break;
             case 9: campus.navigationMenu(); break;
-            case 10: std::cout << "[Shared: not implemented yet]\n"; break;
+            case 10: analysis.menu(); break;
         }
     }
 

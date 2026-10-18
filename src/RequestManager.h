@@ -43,6 +43,11 @@ private:
 public:
     explicit RequestManager(ResourceManager& rm);
 
+    // Counts, used by the System Analysis snapshot.
+    int normalCount() const { return normalQueue.size(); }
+    int priorityCount() const { return priorityHeap.size(); }
+    int processedCount() const { return processedLog.size(); }
+
     void requestMenu();       // main menu option 4
     void priorityMenu();      // main menu option 5
 

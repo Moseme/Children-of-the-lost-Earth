@@ -1,13 +1,13 @@
 # A|B|metres joins two locations with a walkway; a line with just a name is a location on its own.
 Library|CS Building|120
-CS Building|Building 32|80
-Building 32|Technical Annex|60
 Library|Administration|150
-Administration|Equipment Store|90
+Library|Student Affairs|100
+Library|Lecture Hall Block|90
+CS Building|Building 32|80
+CS Building|Lecture Hall Block|50
+Building 32|Technical Annex|60
 Technical Annex|Equipment Store|110
-Student Affairs|Administration|70
-Student Affairs|Library|100
-Lecture Hall Block|CS Building|50
-Lecture Hall Block|Library|90
-Sports Complex|Student Affairs|200
+Administration|Equipment Store|90
+Administration|Student Affairs|70
+Student Affairs|Sports Complex|200
 Remote Research Station
