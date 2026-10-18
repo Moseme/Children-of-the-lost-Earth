@@ -10,12 +10,20 @@
 #include <string>
 #include "LinkedList.h"
 #include "Stack.h"
+#include "HashTable.h"
+#include "Tree.h"
 #include "Resource.h"
 
 class ResourceManager {
 private:
     LinkedList list;     // the master store of all resources
+    HashTable hashIndex; // finds a resource by ID in O(1)   (Student C)
+    BST treeIndex;       // keeps resources ordered by ID     (Student C)
     UndoStack undoStack; // remembers add / remove / update so they can be undone (LIFO)
+
+    // Keep the two indexes in step with the list. Both store POINTERS to the list's own data.
+    void indexResource(Resource* stored);              // call right AFTER a resource joins the list
+    void unindexResource(const std::string& id);       // call right BEFORE a resource leaves the list
 
     // --- Resource Management helpers ---
     void addResource(int where);         // where: 1 = beginning, 2 = end, 3 = chosen position
@@ -51,12 +59,14 @@ public:
 
     // ----- access for other modules (Student B and C) -----
     int count() const { return list.size(); }
-    Resource* findResource(const std::string& id) const { return list.findById(id); }
+    Resource* findResource(const std::string& id) const { return hashIndex.find(id); }   // O(1) average
+
+    // Read-only access to the indexes (used by Student C's tree and hash menus).
+    const HashTable& getHashIndex() const { return hashIndex; }
+    const BST& getTreeIndex() const { return treeIndex; }
     // Copy of all resources in a new array. Caller must delete[] it. NULL if empty.
     Resource* getAllAsArray(int& n) const { return list.toArray(n); }
 
-    // Called by menus after a successful add/remove so other structures can be kept in step.
-    // TODO (team): when Student C's BST and HashTable exist, insert/remove there too.
 };
 
 #endif

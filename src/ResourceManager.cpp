@@ -19,12 +19,24 @@ bool ResourceManager::isValidText(const std::string& text) const {
     return true;
 }
 
+// Keep the hash table and the BST in step with the master list (Student C's indexes).
+void ResourceManager::indexResource(Resource* stored) {
+    if (stored == NULL) return;
+    hashIndex.insert(stored);
+    treeIndex.insert(stored);
+}
+
+void ResourceManager::unindexResource(const std::string& id) {
+    hashIndex.remove(id);
+    treeIndex.remove(id);
+}
+
 // Ask for all fields of a resource. Returns false if the user typed something invalid.
 bool ResourceManager::readResourceFields(Resource& r, bool askForId) {
     if (askForId) {
         r.id = readLine("Resource ID (e.g. LAB105): ");
         if (!isValidText(r.id)) { std::cout << "ID cannot be empty or contain '|'.\n"; return false; }
-        if (list.findById(r.id) != NULL) {
+        if (hashIndex.find(r.id) != NULL) {
             std::cout << "A resource with ID " << r.id << " already exists.\n";
             return false;
         }
@@ -50,21 +62,22 @@ void ResourceManager::addResource(int where) {
         std::cout << "Resource was NOT added.\n";
         return;
     }
+    Resource* stored = NULL;
     if (where == 1) {
-        list.insertAtBeginning(r);
+        stored = list.insertAtBeginning(r);
     } else if (where == 2) {
-        list.insertAtEnd(r);
+        stored = list.insertAtEnd(r);
     } else {
         int position = readInt("Position (1 to " + intToString(list.size() + 1) + "): ", 1, list.size() + 1);
-        list.insertAtPosition(position, r);
+        stored = list.insertAtPosition(position, r);
     }
+    indexResource(stored);             // add it to the hash table and the BST as well
     std::cout << "Resource " << r.id << " added.\n";
 
     UndoAction action;                 // remember it so UNDO can remove it again
     action.type = UNDO_ADD;
     action.resource = r;
     undoStack.push(action);
-    // TODO (team): also insert r into the BST and the HashTable.
 }
 
 void ResourceManager::removeResource() {
@@ -75,6 +88,7 @@ void ResourceManager::removeResource() {
     std::string id = readLine("ID of the resource to remove: ");
     Resource removed;
     int position = list.getPosition(id);     // remember where it was, for UNDO
+    unindexResource(id);                     // leave the hash table and BST BEFORE the node is deleted
     if (list.removeById(id, removed)) {
         std::cout << "Removed:\n";
         printResourceHeader();
@@ -84,7 +98,6 @@ void ResourceManager::removeResource() {
         action.resource = removed;
         action.position = position;
         undoStack.push(action);
-        // TODO (team): also remove it from the BST and the HashTable.
     } else {
         std::cout << "No resource with ID '" << id << "' was found.\n";
     }
@@ -92,7 +105,7 @@ void ResourceManager::removeResource() {
 
 void ResourceManager::updateResource() {
     std::string id = readLine("ID of the resource to update: ");
-    Resource* r = list.findById(id);
+    Resource* r = hashIndex.find(id);
     if (r == NULL) {
         std::cout << "No resource with ID '" << id << "' was found.\n";
         return;
@@ -154,13 +167,13 @@ void ResourceManager::generateTestData() {
         while (number.size() < 5) number = "0" + number;       // 1 -> 00001
         Resource r;
         r.id = "GEN" + number;
-        if (list.findById(r.id) != NULL) continue;          // skip if it already exists
+        if (hashIndex.find(r.id) != NULL) continue;          // skip if it already exists
         r.name = "Test Resource " + intToString(rand() % 100000);
         r.type = types[rand() % 4];
         r.location = "Building " + intToString(rand() % 40 + 1);
         r.capacity = rand() % 200 + 1;
         r.available = (rand() % 2 == 0);
-        list.insertAtEnd(r);
+        indexResource(list.insertAtEnd(r));
         added++;
     }
     std::cout << added << " test resources added. Total resources: " << list.size() << "\n";
@@ -383,13 +396,13 @@ bool ResourceManager::loadFromFile(const std::string& filename) {
             skipped++;
             continue;
         }
-        if (list.findById(fields[0]) != NULL) {
+        if (hashIndex.find(fields[0]) != NULL) {
             std::cout << "  Line " << lineNumber << " skipped (duplicate ID " << fields[0] << ").\n";
             skipped++;
             continue;
         }
         Resource r(fields[0], fields[1], fields[2], fields[3], capacity, available == 1);
-        list.insertAtEnd(r);
+        indexResource(list.insertAtEnd(r));
         loaded++;
     }
     in.close();
@@ -432,24 +445,25 @@ void ResourceManager::undoLast() {
 
     if (action.type == UNDO_ADD) {
         Resource removed;
+        unindexResource(id);                         // leave the indexes BEFORE the node is deleted
         if (list.removeById(id, removed)) {
             std::cout << "Undone: the addition of " << id << " (it has been removed again).\n";
         } else {
             std::cout << "Could not undo: " << id << " is no longer in the list.\n";
         }
     } else if (action.type == UNDO_REMOVE) {
-        if (list.findById(id) != NULL) {
+        if (hashIndex.find(id) != NULL) {
             std::cout << "Could not undo: a resource with ID " << id << " already exists.\n";
         } else {
             int position = action.position;
             if (position < 1 || position > list.size() + 1) {
                 position = list.size() + 1;          // the list changed: put it at the end
             }
-            list.insertAtPosition(position, action.resource);
+            indexResource(list.insertAtPosition(position, action.resource));
             std::cout << "Undone: the removal of " << id << " (restored at position " << position << ").\n";
         }
     } else if (action.type == UNDO_UPDATE) {
-        Resource* current = list.findById(id);
+        Resource* current = hashIndex.find(id);
         if (current == NULL) {
             std::cout << "Could not undo: " << id << " is no longer in the list.\n";
         } else {
@@ -459,7 +473,6 @@ void ResourceManager::undoLast() {
             printResourceRow(*current);
         }
     }
-    // TODO (team): keep the BST and the HashTable in step with the undo as well.
 }
 
 void ResourceManager::viewUndoTop() const {
