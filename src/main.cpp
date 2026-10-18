@@ -1,9 +1,11 @@
 // SHARED: integration point. Each owner wires their menu section here.
 #include <iostream>
 #include "ResourceManager.h"
+#include "RequestManager.h"
 #include "Utils.h"
 
 static const char* RESOURCE_FILE = "data/resources.txt";
+static const char* REQUEST_FILE = "data/requests.txt";
 
 static void printMenu() {
     std::cout << "\n================================================\n"
@@ -24,10 +26,14 @@ static void printMenu() {
 
 int main() {
     ResourceManager manager;
+    RequestManager requests(manager);     // the request system needs access to the resources
 
     // Load data when the program starts.
     if (!manager.loadFromFile(RESOURCE_FILE)) {
         std::cout << "Note: " << RESOURCE_FILE << " not found. Starting with no resources.\n";
+    }
+    if (!requests.loadFromFile(REQUEST_FILE)) {
+        std::cout << "Note: " << REQUEST_FILE << " not found. Starting with no requests.\n";
     }
     // TODO (team): after loading, fill Student C's BST and HashTable from manager.getAllAsArray(n).
 
@@ -40,7 +46,9 @@ int main() {
             case 1: manager.resourceMenu(); break;
             case 2: manager.searchMenu(); break;
             case 3: manager.sortMenu(); break;
-            case 4: case 5: case 6:   std::cout << "[Student B: not implemented yet]\n"; break;
+            case 4: requests.requestMenu(); break;
+            case 5: requests.priorityMenu(); break;
+            case 6: manager.undoMenu(); break;
             case 7: case 8: case 9:   std::cout << "[Student C: not implemented yet]\n"; break;
             case 10: std::cout << "[Shared: not implemented yet]\n"; break;
         }
@@ -51,6 +59,11 @@ int main() {
         std::cout << "Resources saved to " << RESOURCE_FILE << ".\n";
     } else {
         std::cout << "Warning: could not save to " << RESOURCE_FILE << ".\n";
+    }
+    if (requests.saveToFile(REQUEST_FILE)) {
+        std::cout << "Requests saved to " << REQUEST_FILE << ".\n";
+    } else {
+        std::cout << "Warning: could not save to " << REQUEST_FILE << ".\n";
     }
     std::cout << "Goodbye.\n";
     return 0;
