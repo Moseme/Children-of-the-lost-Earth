@@ -45,6 +45,8 @@ private:
 public:
     explicit CampusManager(ResourceManager& rm);
 
+    int locationCount() const { return graph.vertexCount(); }
+
     void treeMenu();            // main menu option 7
     void hashMenu();            // main menu option 8
     void navigationMenu();      // main menu option 9
