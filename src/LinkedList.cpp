@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <iostream>
 
-LinkedList::LinkedList() : head(nullptr), tail(nullptr), count(0) {
+LinkedList::LinkedList() : head(NULL), tail(NULL), count(0) {
 }
 
 LinkedList::~LinkedList() {
@@ -11,13 +11,13 @@ LinkedList::~LinkedList() {
 
 void LinkedList::clear() {
     ListNode* current = head;
-    while (current != nullptr) {
+    while (current != NULL) {
         ListNode* nextNode = current->next;   // remember the next node BEFORE deleting this one
         delete current;
         current = nextNode;
     }
-    head = nullptr;
-    tail = nullptr;
+    head = NULL;
+    tail = NULL;
     count = 0;
 }
 
@@ -25,7 +25,7 @@ void LinkedList::insertAtBeginning(const Resource& r) {
     ListNode* newNode = new ListNode(r);
     newNode->next = head;       // new node points to the old first node
     head = newNode;             // head now points to the new node
-    if (tail == nullptr) {      // list was empty, so the new node is also the last one
+    if (tail == NULL) {      // list was empty, so the new node is also the last one
         tail = newNode;
     }
     count++;
@@ -33,7 +33,7 @@ void LinkedList::insertAtBeginning(const Resource& r) {
 
 void LinkedList::insertAtEnd(const Resource& r) {
     ListNode* newNode = new ListNode(r);
-    if (head == nullptr) {      // empty list
+    if (head == NULL) {      // empty list
         head = newNode;
         tail = newNode;
     } else {
@@ -68,12 +68,12 @@ bool LinkedList::insertAtPosition(int position, const Resource& r) {
 }
 
 bool LinkedList::removeById(const std::string& id, Resource& removed) {
-    ListNode* previous = nullptr;
+    ListNode* previous = NULL;
     ListNode* current = head;
-    while (current != nullptr) {
+    while (current != NULL) {
         if (current->data.id == id) {
             removed = current->data;                // keep a copy of what we delete
-            if (previous == nullptr) {
+            if (previous == NULL) {
                 head = current->next;               // deleting the first node
             } else {
                 previous->next = current->next;     // skip over the deleted node
@@ -93,34 +93,47 @@ bool LinkedList::removeById(const std::string& id, Resource& removed) {
 
 Resource* LinkedList::findById(const std::string& id) const {
     ListNode* current = head;
-    while (current != nullptr) {
+    while (current != NULL) {
         if (current->data.id == id) {
             return &current->data;
         }
         current = current->next;
     }
-    return nullptr;
+    return NULL;
 }
 
 Resource* LinkedList::findByName(const std::string& name) const {
     ListNode* current = head;
-    while (current != nullptr) {
+    while (current != NULL) {
         if (current->data.name == name) {
             return &current->data;
         }
         current = current->next;
     }
-    return nullptr;
+    return NULL;
+}
+
+int LinkedList::getPosition(const std::string& id) const {
+    ListNode* current = head;
+    int position = 1;
+    while (current != NULL) {
+        if (current->data.id == id) {
+            return position;
+        }
+        current = current->next;
+        position++;
+    }
+    return 0;
 }
 
 void LinkedList::display() const {
-    if (head == nullptr) {
+    if (head == NULL) {
         std::cout << "(no resources)\n";
         return;
     }
     printResourceHeader();
     ListNode* current = head;
-    while (current != nullptr) {
+    while (current != NULL) {
         printResourceRow(current->data);
         current = current->next;
     }
@@ -129,12 +142,12 @@ void LinkedList::display() const {
 Resource* LinkedList::toArray(int& n) const {
     n = count;
     if (count == 0) {
-        return nullptr;
+        return NULL;
     }
     Resource* arr = new Resource[count];
     ListNode* current = head;
     int i = 0;
-    while (current != nullptr) {
+    while (current != NULL) {
         arr[i] = current->data;
         i++;
         current = current->next;

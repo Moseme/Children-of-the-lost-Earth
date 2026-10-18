@@ -1,7 +1,7 @@
 // OWNER: Student A.
 // A hand-written SINGLY LINKED LIST that stores Resource objects.
 //
-//   head --> [R1|next] --> [R2|next] --> [R3|next] --> nullptr
+//   head --> [R1|next] --> [R2|next] --> [R3|next] --> NULL
 //                                          ^
 //                                         tail
 //
@@ -20,20 +20,23 @@
 struct ListNode {
     Resource data;
     ListNode* next;
-    ListNode(const Resource& r) : data(r), next(nullptr) {}
+    ListNode(const Resource& r) : data(r), next(NULL) {}
 };
 
 class LinkedList {
 private:
-    ListNode* head;   // first node (nullptr when the list is empty)
+    ListNode* head;   // first node (NULL when the list is empty)
     ListNode* tail;   // last node, kept so that insertion at the end is O(1)
     int count;        // number of nodes
+
+    // Copying a list would make two lists share the same nodes, so we forbid it:
+    // these are declared (so the compiler uses them) but never written.
+    LinkedList(const LinkedList&);
+    LinkedList& operator=(const LinkedList&);
 
 public:
     LinkedList();
     ~LinkedList();                                  // frees every node
-    LinkedList(const LinkedList&) = delete;         // copying would share nodes, so forbid it
-    LinkedList& operator=(const LinkedList&) = delete;
 
     // ----- insertion -----
     void insertAtBeginning(const Resource& r);              // O(1)
@@ -46,8 +49,9 @@ public:
     bool removeById(const std::string& id, Resource& removed);
 
     // ----- searching (linear search) -----
-    Resource* findById(const std::string& id) const;        // O(n), nullptr if not found
+    Resource* findById(const std::string& id) const;        // O(n), NULL if not found
     Resource* findByName(const std::string& name) const;    // O(n), first match
+    int getPosition(const std::string& id) const;           // O(n), 1 = first node, 0 = not found
 
     // ----- other -----
     void display() const;                  // traversal: prints every resource, O(n)
@@ -57,7 +61,7 @@ public:
 
     // Copies the list into a NEW dynamic array (so we can sort it / binary-search it).
     // n receives the number of items. The caller MUST free it with delete[].
-    // Returns nullptr when the list is empty.
+    // Returns NULL when the list is empty.
     Resource* toArray(int& n) const;
 };
 

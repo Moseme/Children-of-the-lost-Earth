@@ -8,6 +8,9 @@
 // Remove spaces, tabs and '\r' from both ends of a string.
 std::string trim(const std::string& s);
 
+// Convert a whole number to text (plain replacement for std::to_string).
+std::string intToString(int value);
+
 // Convert text to an int. Returns false if the text is not a whole number.
 bool parseInt(const std::string& s, int& value);
 

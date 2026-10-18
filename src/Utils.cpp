@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 std::string trim(const std::string& s) {
     int start = 0;
@@ -84,4 +85,10 @@ void printResourceRow(const Resource& r) {
               << std::setw(18) << r.location
               << std::setw(10) << r.capacity
               << (r.available ? "Available" : "Unavailable") << "\n";
+}
+
+std::string intToString(int value) {
+    std::ostringstream out;
+    out << value;
+    return out.str();
 }

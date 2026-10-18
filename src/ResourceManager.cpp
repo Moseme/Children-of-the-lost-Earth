@@ -24,7 +24,7 @@ bool ResourceManager::readResourceFields(Resource& r, bool askForId) {
     if (askForId) {
         r.id = readLine("Resource ID (e.g. LAB105): ");
         if (!isValidText(r.id)) { std::cout << "ID cannot be empty or contain '|'.\n"; return false; }
-        if (list.findById(r.id) != nullptr) {
+        if (list.findById(r.id) != NULL) {
             std::cout << "A resource with ID " << r.id << " already exists.\n";
             return false;
         }
@@ -55,10 +55,15 @@ void ResourceManager::addResource(int where) {
     } else if (where == 2) {
         list.insertAtEnd(r);
     } else {
-        int position = readInt("Position (1 to " + std::to_string(list.size() + 1) + "): ", 1, list.size() + 1);
+        int position = readInt("Position (1 to " + intToString(list.size() + 1) + "): ", 1, list.size() + 1);
         list.insertAtPosition(position, r);
     }
     std::cout << "Resource " << r.id << " added.\n";
+
+    UndoAction action;                 // remember it so UNDO can remove it again
+    action.type = UNDO_ADD;
+    action.resource = r;
+    undoStack.push(action);
     // TODO (team): also insert r into the BST and the HashTable.
 }
 
@@ -69,11 +74,16 @@ void ResourceManager::removeResource() {
     }
     std::string id = readLine("ID of the resource to remove: ");
     Resource removed;
+    int position = list.getPosition(id);     // remember where it was, for UNDO
     if (list.removeById(id, removed)) {
         std::cout << "Removed:\n";
         printResourceHeader();
         printResourceRow(removed);
-        // TODO (Student B): push 'removed' onto the undo stack here.
+        UndoAction action;                   // remember it so UNDO can put it back
+        action.type = UNDO_REMOVE;
+        action.resource = removed;
+        action.position = position;
+        undoStack.push(action);
         // TODO (team): also remove it from the BST and the HashTable.
     } else {
         std::cout << "No resource with ID '" << id << "' was found.\n";
@@ -83,7 +93,7 @@ void ResourceManager::removeResource() {
 void ResourceManager::updateResource() {
     std::string id = readLine("ID of the resource to update: ");
     Resource* r = list.findById(id);
-    if (r == nullptr) {
+    if (r == NULL) {
         std::cout << "No resource with ID '" << id << "' was found.\n";
         return;
     }
@@ -92,7 +102,7 @@ void ResourceManager::updateResource() {
     printResourceRow(*r);
     std::cout << "Press Enter to keep the current value.\n";
 
-    // TODO (Student B): save a copy of *r on the undo stack before changing it.
+    Resource before = *r;      // copy of the old values, for UNDO
     std::string text;
 
     text = readLine("New name: ");
@@ -119,6 +129,15 @@ void ResourceManager::updateResource() {
         if (parseInt(text, value) && (value == 0 || value == 1)) r->available = (value == 1);
         else std::cout << "Invalid status, kept the old one.\n";
     }
+    bool changed = (before.name != r->name || before.type != r->type ||
+                    before.location != r->location || before.capacity != r->capacity ||
+                    before.available != r->available);
+    if (changed) {
+        UndoAction action;
+        action.type = UNDO_UPDATE;
+        action.resource = before;
+        undoStack.push(action);
+    }
     std::cout << "Updated:\n";
     printResourceHeader();
     printResourceRow(*r);
@@ -131,14 +150,14 @@ void ResourceManager::generateTestData() {
     srand(12345);                     // fixed seed: same data every time, so tests can be repeated
     int added = 0;
     for (int i = 1; i <= n; i++) {
-        std::string number = std::to_string(i);
+        std::string number = intToString(i);
         while (number.size() < 5) number = "0" + number;       // 1 -> 00001
         Resource r;
         r.id = "GEN" + number;
-        if (list.findById(r.id) != nullptr) continue;          // skip if it already exists
-        r.name = "Test Resource " + std::to_string(rand() % 100000);
+        if (list.findById(r.id) != NULL) continue;          // skip if it already exists
+        r.name = "Test Resource " + intToString(rand() % 100000);
         r.type = types[rand() % 4];
-        r.location = "Building " + std::to_string(rand() % 40 + 1);
+        r.location = "Building " + intToString(rand() % 40 + 1);
         r.capacity = rand() % 200 + 1;
         r.available = (rand() % 2 == 0);
         list.insertAtEnd(r);
@@ -189,7 +208,7 @@ static void displayArray(const Resource arr[], int n, int limit) {
 void ResourceManager::showSorted(int algorithm, int criterion) {
     int n;
     Resource* arr = list.toArray(n);
-    if (arr == nullptr) {
+    if (arr == NULL) {
         std::cout << "There are no resources to sort.\n";
         return;
     }
@@ -210,7 +229,7 @@ void ResourceManager::showSorted(int algorithm, int criterion) {
 void ResourceManager::compareSortingAlgorithms(int criterion) {
     int n;
     Resource* a = list.toArray(n);
-    if (a == nullptr) {
+    if (a == NULL) {
         std::cout << "There are no resources to sort.\n";
         return;
     }
@@ -268,7 +287,7 @@ void ResourceManager::sortMenu() {
 void ResourceManager::searchByIdLinear() {
     int n;
     Resource* arr = list.toArray(n);
-    if (arr == nullptr) { std::cout << "There are no resources to search.\n"; return; }
+    if (arr == NULL) { std::cout << "There are no resources to search.\n"; return; }
     std::string id = readLine("Resource ID to search for: ");
     long comparisons = 0;
     int index = linearSearchById(arr, n, id, comparisons);
@@ -287,7 +306,7 @@ void ResourceManager::searchByIdLinear() {
 void ResourceManager::searchByIdBinary() {
     int n;
     Resource* arr = list.toArray(n);
-    if (arr == nullptr) { std::cout << "There are no resources to search.\n"; return; }
+    if (arr == NULL) { std::cout << "There are no resources to search.\n"; return; }
     long sortComparisons = 0;
     mergeSort(arr, n, SORT_BY_ID, sortComparisons);     // required before binary search!
     std::string id = readLine("Resource ID to search for: ");
@@ -309,7 +328,7 @@ void ResourceManager::searchByNameLinear() {
     if (list.isEmpty()) { std::cout << "There are no resources to search.\n"; return; }
     std::string name = readLine("Exact resource name to search for: ");
     Resource* r = list.findByName(name);
-    if (r != nullptr) {
+    if (r != NULL) {
         std::cout << "Found:\n";
         printResourceHeader();
         printResourceRow(*r);
@@ -364,7 +383,7 @@ bool ResourceManager::loadFromFile(const std::string& filename) {
             skipped++;
             continue;
         }
-        if (list.findById(fields[0]) != nullptr) {
+        if (list.findById(fields[0]) != NULL) {
             std::cout << "  Line " << lineNumber << " skipped (duplicate ID " << fields[0] << ").\n";
             skipped++;
             continue;
@@ -393,7 +412,76 @@ bool ResourceManager::saveToFile(const std::string& filename) const {
             << arr[i].location << "|" << arr[i].capacity << "|"
             << (arr[i].available ? 1 : 0) << "\n";
     }
-    delete[] arr;      // delete[] on nullptr is safe
+    delete[] arr;      // delete[] on NULL is safe
     out.close();
     return true;
+}
+
+// =====================================================================
+//  Module 4: Undo operations (stack)  -- Student B
+// =====================================================================
+
+// Pops the most recent action off the stack and reverses it.
+void ResourceManager::undoLast() {
+    UndoAction action;
+    if (!undoStack.pop(action)) {
+        std::cout << "Nothing to undo: the undo stack is empty.\n";
+        return;
+    }
+    const std::string& id = action.resource.id;
+
+    if (action.type == UNDO_ADD) {
+        Resource removed;
+        if (list.removeById(id, removed)) {
+            std::cout << "Undone: the addition of " << id << " (it has been removed again).\n";
+        } else {
+            std::cout << "Could not undo: " << id << " is no longer in the list.\n";
+        }
+    } else if (action.type == UNDO_REMOVE) {
+        if (list.findById(id) != NULL) {
+            std::cout << "Could not undo: a resource with ID " << id << " already exists.\n";
+        } else {
+            int position = action.position;
+            if (position < 1 || position > list.size() + 1) {
+                position = list.size() + 1;          // the list changed: put it at the end
+            }
+            list.insertAtPosition(position, action.resource);
+            std::cout << "Undone: the removal of " << id << " (restored at position " << position << ").\n";
+        }
+    } else if (action.type == UNDO_UPDATE) {
+        Resource* current = list.findById(id);
+        if (current == NULL) {
+            std::cout << "Could not undo: " << id << " is no longer in the list.\n";
+        } else {
+            *current = action.resource;               // copy the old values back
+            std::cout << "Undone: the update of " << id << " (previous values restored).\n";
+            printResourceHeader();
+            printResourceRow(*current);
+        }
+    }
+    // TODO (team): keep the BST and the HashTable in step with the undo as well.
+}
+
+void ResourceManager::viewUndoTop() const {
+    const UndoAction* top = undoStack.peek();
+    if (top == NULL) {
+        std::cout << "The undo stack is empty.\n";
+    } else {
+        std::cout << "Next undo would reverse: " << describeAction(*top) << "\n";
+    }
+}
+
+void ResourceManager::undoMenu() {
+    int choice = -1;
+    while (choice != 0) {
+        std::cout << "\n--- UNDO OPERATIONS (" << undoStack.size() << " actions can be undone) ---\n"
+                  << "1. Undo the last resource operation (pop)\n"
+                  << "2. View the last operation (peek / top)\n"
+                  << "3. View the whole undo history\n"
+                  << "0. Back to main menu\n";
+        choice = readInt("Enter your choice: ", 0, 3);
+        if (choice == 1) undoLast();
+        else if (choice == 2) viewUndoTop();
+        else if (choice == 3) undoStack.display();
+    }
 }

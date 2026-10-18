@@ -10,7 +10,7 @@ private:
         Resource data;
         Node* left;
         Node* right;
-        Node(const Resource& r) : data(r), left(nullptr), right(nullptr) {}
+        Node(const Resource& r) : data(r), left(NULL), right(NULL) {}
     };
     Node* root;
 
@@ -20,7 +20,7 @@ private:
     void destroy(Node* n);
 
 public:
-    BST() : root(nullptr) {}
+    BST() : root(NULL) {}
     ~BST();
 
     bool insert(const Resource& r);
@@ -28,7 +28,7 @@ public:
     Resource* search(const std::string& id);
     void inorder() const;     // sorted by ID
     void levelOrder() const;  // needs a queue (reuse Student B's Queue or write a local one)
-    bool empty() const { return root == nullptr; }
+    bool empty() const { return root == NULL; }
 };
 
 #endif

@@ -9,11 +9,13 @@
 #define RESOURCEMANAGER_H
 #include <string>
 #include "LinkedList.h"
+#include "Stack.h"
 #include "Resource.h"
 
 class ResourceManager {
 private:
     LinkedList list;     // the master store of all resources
+    UndoStack undoStack; // remembers add / remove / update so they can be undone (LIFO)
 
     // --- Resource Management helpers ---
     void addResource(int where);         // where: 1 = beginning, 2 = end, 3 = chosen position
@@ -27,6 +29,10 @@ private:
     void showSorted(int algorithm, int criterion);     // algorithm: 1 insertion, 2 merge
     void compareSortingAlgorithms(int criterion);
 
+    // --- Undo helpers (Student B) ---
+    void undoLast();
+    void viewUndoTop() const;
+
     // --- Search helpers ---
     void searchByIdLinear();
     void searchByIdBinary();
@@ -37,6 +43,7 @@ public:
     void resourceMenu();    // main menu option 1
     void searchMenu();      // main menu option 2
     void sortMenu();        // main menu option 3
+    void undoMenu();        // main menu option 6 (Student B)
 
     // ----- file persistence -----
     bool loadFromFile(const std::string& filename);
@@ -45,12 +52,11 @@ public:
     // ----- access for other modules (Student B and C) -----
     int count() const { return list.size(); }
     Resource* findResource(const std::string& id) const { return list.findById(id); }
-    // Copy of all resources in a new array. Caller must delete[] it. nullptr if empty.
+    // Copy of all resources in a new array. Caller must delete[] it. NULL if empty.
     Resource* getAllAsArray(int& n) const { return list.toArray(n); }
 
     // Called by menus after a successful add/remove so other structures can be kept in step.
     // TODO (team): when Student C's BST and HashTable exist, insert/remove there too.
-    // TODO (Student B): push the removed resource on the undo stack inside removeResource().
 };
 
 #endif

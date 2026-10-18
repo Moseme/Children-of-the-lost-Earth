@@ -15,19 +15,20 @@ private:
     struct Vertex {
         std::string name;
         Edge* edges;
-        Vertex() : edges(nullptr) {}
+        Vertex() : edges(NULL) {}
     };
     Vertex* vertices;
     int capacity;
     int numVertices;
+
+    Graph(const Graph&);                       // copying is forbidden (declared, never written)
+    Graph& operator=(const Graph&);
 
     int indexOf(const std::string& name) const;
 
 public:
     explicit Graph(int maxVertices = 50);
     ~Graph();
-    Graph(const Graph&) = delete;
-    Graph& operator=(const Graph&) = delete;
 
     bool addLocation(const std::string& name);
     bool addConnection(const std::string& a, const std::string& b, int weight = 1); // undirected

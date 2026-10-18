@@ -1,5 +1,5 @@
 CXX      := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -g -Isrc
+CXXFLAGS := -std=gnu++98 -Wall -Wextra -g -Isrc
 SRC      := $(wildcard src/*.cpp)
 OBJ      := $(SRC:src/%.cpp=build/%.o)
 TARGET   := campus_system
