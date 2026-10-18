@@ -39,9 +39,11 @@ public:
     ~LinkedList();                                  // frees every node
 
     // ----- insertion -----
-    void insertAtBeginning(const Resource& r);              // O(1)
-    void insertAtEnd(const Resource& r);                    // O(1) because of tail
-    bool insertAtPosition(int position, const Resource& r); // O(n); valid positions: 1 .. size+1
+    // Each insert returns a pointer to the resource as stored inside the list, so that other
+    // structures (hash table, BST) can point to the SAME copy instead of keeping their own.
+    Resource* insertAtBeginning(const Resource& r);         // O(1)
+    Resource* insertAtEnd(const Resource& r);               // O(1) because of tail
+    Resource* insertAtPosition(int position, const Resource& r); // O(n); valid: 1 .. size+1, else NULL
 
     // ----- deletion -----
     // Removes the resource with this ID. The removed data is copied into 'removed'

@@ -2,10 +2,12 @@
 #include <iostream>
 #include "ResourceManager.h"
 #include "RequestManager.h"
+#include "CampusManager.h"
 #include "Utils.h"
 
 static const char* RESOURCE_FILE = "data/resources.txt";
 static const char* REQUEST_FILE = "data/requests.txt";
+static const char* LOCATION_FILE = "data/locations.txt";
 
 static void printMenu() {
     std::cout << "\n================================================\n"
@@ -27,6 +29,7 @@ static void printMenu() {
 int main() {
     ResourceManager manager;
     RequestManager requests(manager);     // the request system needs access to the resources
+    CampusManager campus(manager);        // tree, hash table and graph menus
 
     // Load data when the program starts.
     if (!manager.loadFromFile(RESOURCE_FILE)) {
@@ -35,7 +38,10 @@ int main() {
     if (!requests.loadFromFile(REQUEST_FILE)) {
         std::cout << "Note: " << REQUEST_FILE << " not found. Starting with no requests.\n";
     }
-    // TODO (team): after loading, fill Student C's BST and HashTable from manager.getAllAsArray(n).
+    if (!campus.loadLocations(LOCATION_FILE)) {
+        std::cout << "Note: " << LOCATION_FILE << " not found. Starting with no locations.\n";
+    }
+    // (The hash table and BST fill themselves while the resources load.)
 
     int choice = -1;
     while (choice != 0) {
@@ -49,7 +55,9 @@ int main() {
             case 4: requests.requestMenu(); break;
             case 5: requests.priorityMenu(); break;
             case 6: manager.undoMenu(); break;
-            case 7: case 8: case 9:   std::cout << "[Student C: not implemented yet]\n"; break;
+            case 7: campus.treeMenu(); break;
+            case 8: campus.hashMenu(); break;
+            case 9: campus.navigationMenu(); break;
             case 10: std::cout << "[Shared: not implemented yet]\n"; break;
         }
     }
@@ -64,6 +72,11 @@ int main() {
         std::cout << "Requests saved to " << REQUEST_FILE << ".\n";
     } else {
         std::cout << "Warning: could not save to " << REQUEST_FILE << ".\n";
+    }
+    if (campus.saveLocations(LOCATION_FILE)) {
+        std::cout << "Locations saved to " << LOCATION_FILE << ".\n";
+    } else {
+        std::cout << "Warning: could not save to " << LOCATION_FILE << ".\n";
     }
     std::cout << "Goodbye.\n";
     return 0;

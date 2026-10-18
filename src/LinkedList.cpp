@@ -21,19 +21,20 @@ void LinkedList::clear() {
     count = 0;
 }
 
-void LinkedList::insertAtBeginning(const Resource& r) {
+Resource* LinkedList::insertAtBeginning(const Resource& r) {
     ListNode* newNode = new ListNode(r);
     newNode->next = head;       // new node points to the old first node
     head = newNode;             // head now points to the new node
-    if (tail == NULL) {      // list was empty, so the new node is also the last one
+    if (tail == NULL) {         // list was empty, so the new node is also the last one
         tail = newNode;
     }
     count++;
+    return &newNode->data;
 }
 
-void LinkedList::insertAtEnd(const Resource& r) {
+Resource* LinkedList::insertAtEnd(const Resource& r) {
     ListNode* newNode = new ListNode(r);
-    if (head == NULL) {      // empty list
+    if (head == NULL) {         // empty list
         head = newNode;
         tail = newNode;
     } else {
@@ -41,19 +42,18 @@ void LinkedList::insertAtEnd(const Resource& r) {
         tail = newNode;         // the new node is now the last one
     }
     count++;
+    return &newNode->data;
 }
 
-bool LinkedList::insertAtPosition(int position, const Resource& r) {
+Resource* LinkedList::insertAtPosition(int position, const Resource& r) {
     if (position < 1 || position > count + 1) {
-        return false;                       // position does not exist
+        return NULL;                        // position does not exist
     }
     if (position == 1) {
-        insertAtBeginning(r);
-        return true;
+        return insertAtBeginning(r);
     }
     if (position == count + 1) {
-        insertAtEnd(r);
-        return true;
+        return insertAtEnd(r);
     }
     // Walk to the node just BEFORE the wanted position.
     ListNode* previous = head;
@@ -64,7 +64,7 @@ bool LinkedList::insertAtPosition(int position, const Resource& r) {
     newNode->next = previous->next;         // link the new node to the one after it
     previous->next = newNode;               // link the one before it to the new node
     count++;
-    return true;
+    return &newNode->data;
 }
 
 bool LinkedList::removeById(const std::string& id, Resource& removed) {
