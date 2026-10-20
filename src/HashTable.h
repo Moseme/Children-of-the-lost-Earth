@@ -11,7 +11,7 @@
 // resources that landed in it. Why we chose it (report material):
 //   + the table can never be "full" (a chain just gets longer)
 //   + deleting is simple (unlink one node), unlike linear probing which needs tombstones
-//   + one bad hash value does not spoil neighbouring buckets (no clustering)
+//   + one bad hash value does not spoil neighboring buckets (no clustering)
 //   - needs an extra pointer per entry
 // To keep the chains short, the table doubles (and re-hashes) when it holds more entries than buckets.
 //
