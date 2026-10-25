@@ -5,9 +5,9 @@ Library|Student Affairs|100
 Library|Lecture Hall Block|90
 CS Building|Building 32|80
 CS Building|Lecture Hall Block|50
-Building 32|Technical Annex|60
-Technical Annex|Equipment Store|110
 Administration|Equipment Store|90
 Administration|Student Affairs|70
 Student Affairs|Sports Complex|200
+Building 32|Technical Annex|60
+Equipment Store|Technical Annex|110
 Remote Research Station
